@@ -1,8 +1,8 @@
-cmake_minimum_required (VERSION 3.0)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 
 PROJECT(Chapter2)
 
-set (CMAKE_CXX_STANDARD 11)
+SET(CMAKE_CXX_STANDARD 11)
 
 IF(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
   include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
@@ -21,7 +21,6 @@ MESSAGE("OpenCV version : ${OpenCV_VERSION}")
 #
 #ADD_EXECUTABLE(sample3 sample3.cpp )
 #TARGET_LINK_LIBRARIES(sample3 ${OpenCV_LIBS} ${CONAN_LIBS} -lprotobuf)
-
 
 ADD_EXECUTABLE(${PROJECT_NAME} main.cc)
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OpenCV_LIBS})
