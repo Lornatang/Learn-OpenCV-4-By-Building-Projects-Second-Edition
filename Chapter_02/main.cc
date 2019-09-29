@@ -15,17 +15,17 @@
  */
 
 #include <iostream>
-#include <string>
-#include <sstream>
 
 using namespace std;
 
+// OpenCV includes
 #include "opencv2/core.hpp"
 #include "opencv2/highgui.hpp"
 
 using namespace cv;
 
 int main(int argc, const char *argv[]) {
+  // Read images
   Mat color = imread("../lena.jpg");
   Mat gray = imread("../lena.jpg", 0);
 
@@ -34,8 +34,10 @@ int main(int argc, const char *argv[]) {
     return -1;
   }
 
+  // Write images
   imwrite("lenaGray.jpg", gray);
 
+  // Get same pixel with OpenCV function
   int myRow = color.rows - 1;
   int myCol = color.cols - 1;
 
@@ -46,9 +48,11 @@ int main(int argc, const char *argv[]) {
        << (int) pixel[2] << ")"
        << endl;
 
+  // Show images
   imshow("lena BGR", color);
   imshow("lena Gray", gray);
 
+  // Wait for any key press
   waitKey(0);
   return 0;
 }
