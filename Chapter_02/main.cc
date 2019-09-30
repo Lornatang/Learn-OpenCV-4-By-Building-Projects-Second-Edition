@@ -122,6 +122,7 @@ int main(int argc, const char **argv) {
         myVector[i] = i;
       }
       cout << myVector << endl;
+      break;
     }
     default: {
       cout << "Sample 0, Mat zeros" << endl;
@@ -130,8 +131,6 @@ int main(int argc, const char **argv) {
       break;
     }
   }
-
   return 0;
-
 }
 
