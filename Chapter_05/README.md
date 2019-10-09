@@ -1,9 +1,8 @@
-# Chapter 04. Delving into Histogram and Filters 
+# Chapter 05.  Automated Optical Inspection, Object Segmentation, and Detection 
 
 ## Requirements
 
-- QT library
-- OpenCV 4.0 with QT
+- OpenCV 4.0
 
 ## Steps to build
 
@@ -21,5 +20,25 @@ make
 The following applications are generated.
 
 ```
-./ch4_Phototool
+./Chapter5
+```
+
+Parameters that accepts executable:
+
+```
+Chapter 5.
+Usage: Chapter5 [params] image lightPattern 
+
+	-?, -h, --help, --usage (value:true)
+		print this message
+	--lightMethod (value:1)
+		Method to remove backgroun light, 0 differenec, 1 div, 2 no light removal'
+	--segMethod (value:1)
+		Method to segment: 1 connected Components, 2 connectec components with stats, 3 find Contours
+
+	image
+		Image to process
+	lightPattern
+		Image light pattern to apply to image input
+
 ```
