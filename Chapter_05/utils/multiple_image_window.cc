@@ -14,29 +14,28 @@
  * ==============================================================================
  */
 
-#include "./MultipleImageWindow.hpp"
+#include "multiple_image_window.h"
 
 MultipleImageWindow::MultipleImageWindow(const string& window_title, const int& cols, const int& rows, const int& flags) {
   this->window_title = window_title;
   this->cols = cols;
   this->rows = rows;
   namedWindow(window_title, flags);
-  // ToDo: detect resolution of desktop and show fullresolution canvas
   this->canvas_width = 1200;
   this->canvas_height = 700;
   this->canvas = Mat(this->canvas_height, this->canvas_width, CV_8UC3);
   imshow(this->window_title, this->canvas);
 }
 
-int MultipleImageWindow::addImage(const string& title, const Mat& image, const bool& render) {
+int MultipleImageWindow::add_image(const string& title, const Mat& image, const bool& render) {
   this->titles.push_back(title);
   this->images.push_back(image);
   if (render)
     this->render();
-  return this->images.size() - 1;
+  return int(this->images.size()) - 1;
 }
 
-//void MultipleImageWindow::removeImage(const int& pos) {
+//void multiple_image_window::removeImage(const int& pos) {
 //  this->titles.erase(this->titles.begin() + pos);
 //  this->images.erase(this->images.begin() + pos);
 //}
@@ -47,14 +46,13 @@ void MultipleImageWindow::render() {
   // width and height of cell. add 10 px of padding between images
   int cell_width = (canvas_width / cols);
   int cell_height = (canvas_height / rows);
-  int margin = 10;
-  int max_images = (this->images.size() > cols * rows) ? cols * rows : this->images.size();
+  int max_images = (this->images.size() > cols * rows) ? cols * rows : int(this->images.size());
   int i = 0;
   auto titles_it = this->titles.begin();
   for (const auto& img : this->images) {
     string title = *titles_it;
     int cell_x = (cell_width) * ((i) % cols);
-    int cell_y = (cell_height) * floor((float)i / (float) cols);
+    int cell_y = (cell_height) * int(floor((float)i / (float) cols));
     Rect mask(cell_x, cell_y, cell_width, cell_height);
     // Draw a rectangle for each cell mat
     rectangle(canvas, Rect(cell_x, cell_y, cell_width, cell_height), Scalar(200, 200, 200), 1);

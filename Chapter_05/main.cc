@@ -24,7 +24,7 @@ using namespace std;
 #include <opencv2/core/utility.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
-#include "utils/MultipleImageWindow.hpp"
+#include "utils/multiple_image_window.h"
 
 using namespace cv;
 
@@ -77,7 +77,7 @@ void ConnectedComponents(const Mat &img) {
     output.setTo(randomColor(rng), mask);
   }
   //imshow("Result", output);
-  miw->addImage("Result", output);
+  miw->add_image("Result", output);
 }
 
 void ConnectedComponentsStats(const Mat &img) {
@@ -111,7 +111,7 @@ void ConnectedComponentsStats(const Mat &img) {
             Scalar(255, 255, 255));
   }
   imshow("Result", output);
-  miw->addImage("Result", output);
+  miw->add_image("Result", output);
 }
 
 void FindContoursBasic(const Mat& img) {
@@ -129,7 +129,7 @@ void FindContoursBasic(const Mat& img) {
   for (auto i = 0; i < contours.size(); i++)
     drawContours(output, contours, i, randomColor(rng));
   imshow("Result", output);
-  miw->addImage("Result", output);
+  miw->add_image("Result", output);
 }
 
 /**
@@ -216,11 +216,11 @@ int main(int argc, const char **argv) {
   }
 
   // Show images
-  miw->addImage("Input", img);
-  miw->addImage("Input without noise", img_noise);
-  miw->addImage("Light Pattern", light_pattern);
-  miw->addImage("No Light", img_no_light);
-  miw->addImage("Threshold", img_thr);
+  miw->add_image("Input", img);
+  miw->add_image("Input without noise", img_noise);
+  miw->add_image("Light Pattern", light_pattern);
+  miw->add_image("No Light", img_no_light);
+  miw->add_image("Threshold", img_thr);
 
   if (method_seg == 1)
     ConnectedComponents(img_thr);

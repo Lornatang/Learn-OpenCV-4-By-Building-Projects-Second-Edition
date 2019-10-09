@@ -14,8 +14,8 @@
  * ==============================================================================
  */
 
-#ifndef PHOTO_TOOL_MULTIPLEIMAGEWINDOW_HPP
-#define PHOTO_TOOL_MULTIPLEIMAGEWINDOW_HPP
+#ifndef PHOTO_TOOL_MULTIPLEIMAGEWINDOW_H
+#define PHOTO_TOOL_MULTIPLEIMAGEWINDOW_H
 
 #include <string>
 #include <iostream>
@@ -47,7 +47,7 @@ public:
    * @param string title caption of image to show
    * @return int position of image in stack
    */
-  int addImage(const string& title, const Mat& image, const bool& render = false);
+  int add_image(const string& title, const Mat& image, const bool& render = false);
 
   /**
    * Remove a image from position n
@@ -70,4 +70,4 @@ private:
   Mat canvas;
 };
 
-#endif //PHOTO_TOOL_MULTIPLEIMAGEWINDOW_HPP
+#endif // PHOTO_TOOL_MULTIPLEIMAGEWINDOW_H
