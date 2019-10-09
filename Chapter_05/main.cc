@@ -14,213 +14,162 @@
  * ==============================================================================
  */
 
+#include <iostream>
 #include <string>
+#include <memory>
 
 using namespace std;
 
 // OpenCV includes
-#include "opencv2/core/utility.hpp"
-#include "opencv2/imgproc.hpp"
-#include "opencv2/highgui.hpp"
+#include <opencv2/core/utility.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
+#include "utils/MultipleImageWindow.hpp"
 
 using namespace cv;
-Mat img;
+
+shared_ptr<MultipleImageWindow> miw;
 
 // OpenCV command line parser functions
 // Keys accecpted by command line parser
 const char *keys = {
         "{help h usage ? | | print this message}"
-        "{@image | | Image to process}"
+        "{@image || Image to process}"
+        "{@lightPattern || Image light pattern to apply to image input}"
+        "{lightMethod | 1 | Method to remove backgroun light, 0 differenec, 1 div, 2 no light removal' }"
+        "{segMethod | 1 | Method to segment: 1 connected Components, 2 connectec components with stats, 3 find Contours }"
 };
 
-void showHistoCallback(int state, void *userData) {
-  // Separate image in BRG
-  vector<Mat> bgr;
-  split(img, bgr);
+static Scalar randomColor(RNG &rng) {
+  auto icolor = (unsigned) rng;
+  return Scalar(icolor & 255, (icolor >> 8) & 255, (icolor >> 16) & 255);
+}
 
-  // Create the histogram for 256 bins
-  // The number of possibles values
-  int numbins = 256;
+/**
+ * Calcualte image pattern from an input image
+ * @param img Mat input image to calculate the light pattern
+ * @return a Mat pattern image
+ */
+Mat calculateLightPattern(const Mat &img) {
+  Mat pattern;
+  // Basic and effective way to calculate the light pattern from one image
+  blur(img, pattern, Size(img.cols / 3, img.cols / 3));
+  return pattern;
+}
 
-  /// Set the ranges ( for B,G,R) )
-  float range[] = {0, 256};
-  const float *histRange = {range};
 
-  Mat b_hist, g_hist, r_hist;
-
-  calcHist(&bgr[0], 1, 0, Mat(), b_hist, 1, &numbins, &histRange);
-  calcHist(&bgr[1], 1, 0, Mat(), g_hist, 1, &numbins, &histRange);
-  calcHist(&bgr[2], 1, 0, Mat(), r_hist, 1, &numbins, &histRange);
-
-  // Draw the histogram
-  // We go to draw lines for each channel
-  int width = 512;
-  int height = 300;
-  // Create image with gray base
-  Mat histImage(height, width, CV_8UC3, Scalar(20, 20, 20));
-
-  // Normalize the histograms to height of image
-  normalize(b_hist, b_hist, 0, height, NORM_MINMAX);
-  normalize(g_hist, g_hist, 0, height, NORM_MINMAX);
-  normalize(r_hist, r_hist, 0, height, NORM_MINMAX);
-
-  int binStep = cvRound((float) width / (float) numbins);
-  for (int i = 1; i < numbins; i++) {
-    line(histImage,
-         Point(binStep * (i - 1), height - cvRound(b_hist.at<float>(i - 1))),
-         Point(binStep * (i), height - cvRound(b_hist.at<float>(i))),
-         Scalar(255, 0, 0)
-    );
-    line(histImage,
-         Point(binStep * (i - 1), height - cvRound(g_hist.at<float>(i - 1))),
-         Point(binStep * (i), height - cvRound(g_hist.at<float>(i))),
-         Scalar(0, 255, 0)
-    );
-    line(histImage,
-         Point(binStep * (i - 1), height - cvRound(r_hist.at<float>(i - 1))),
-         Point(binStep * (i), height - cvRound(r_hist.at<float>(i))),
-         Scalar(0, 0, 255)
-    );
+void ConnectedComponents(const Mat &img) {
+  // Use connected components to divide our possibles parts of images
+  Mat labels;
+  auto num_objects = connectedComponents(img, labels);
+  // Check the number of objects detected
+  if (num_objects < 2) {
+    cout << "No objects detected" << endl;
+    return;
+  } else {
+    cout << "Number of objects detected: " << num_objects - 1 << endl;
   }
-
-  imshow("Histogram", histImage);
-
-}
-
-void equalizeCallback(int state, void *userData) {
-  Mat result;
-  // Convert BGR image to YCbCr
-  Mat ycrcb;
-  cvtColor(img, ycrcb, COLOR_BGR2YCrCb);
-
-  // Split image into channels
-  vector<Mat> channels;
-  split(ycrcb, channels);
-
-  // Equalize the Y channel only
-  equalizeHist(channels[0], channels[0]);
-
-  // Merge the result channels
-  merge(channels, ycrcb);
-
-  // Convert color ycrcb to BGR
-  cvtColor(ycrcb, result, COLOR_YCrCb2BGR);
-
-  // Show image
-  imshow("Equalized", result);
-}
-
-void lomoCallback(int state, void *userData) {
-  Mat result;
-
-  const double E = std::exp(1.0);
-  // Create Lookup table for color curve effect
-  Mat lut(1, 256, CV_8UC1);
-  for (int i = 0; i < 256; i++) {
-    float x = (float) i / 256.0;
-    lut.at<uchar>(i) = cvRound(256 * (1 / (1 + pow(E, -((x - 0.5) / 0.1)))));
+  // Create output image coloring the objects
+  Mat output = Mat::zeros(img.rows, img.cols, CV_8UC3);
+  RNG rng(0xFFFFFFFF);
+  for (auto i = 1; i < num_objects; i++) {
+    Mat mask = labels == i;
+    output.setTo(randomColor(rng), mask);
   }
-
-  // Split the image channels and apply curve transform only to red channel
-  vector<Mat> bgr;
-  split(img, bgr);
-  LUT(bgr[2], lut, bgr[2]);
-  // merge result
-  merge(bgr, result);
-
-  // Create image for halo dark
-  Mat halo(img.rows, img.cols, CV_32FC3, Scalar(0.3, 0.3, 0.3));
-  // Create circle
-  circle(halo, Point(img.cols / 2, img.rows / 2), img.cols / 3, Scalar(1, 1, 1), -1);
-  blur(halo, halo, Size(img.cols / 3, img.cols / 3));
-
-  // Convert the result to float to allow multiply by 1 factor
-  Mat resultf;
-  result.convertTo(resultf, CV_32FC3);
-
-  // Multiply our result with halo
-  multiply(resultf, halo, resultf);
-
-  // convert to 8 bits
-  resultf.convertTo(result, CV_8UC3);
-
-  // show result
-  imshow("Lomograpy", result);
-
-  // Release mat memory
-  halo.release();
-  resultf.release();
-  lut.release();
-  bgr[0].release();
-  bgr[1].release();
-  bgr[2].release();
+  //imshow("Result", output);
+  miw->addImage("Result", output);
 }
 
-void cartoonCallback(int state, void *userData) {
-  /** EDGES **/
-  // Apply median filter to remove possible noise
-  Mat imgMedian;
-  medianBlur(img, imgMedian, 7);
+void ConnectedComponentsStats(const Mat &img) {
+  // Use connected components with stats
+  Mat labels, stats, centroids;
+  auto num_objects = connectedComponentsWithStats(img, labels, stats, centroids);
+  // Check the number of objects detected
+  if (num_objects < 2) {
+    cout << "No objects detected" << endl;
+    return;
+  } else {
+    cout << "Number of objects detected: " << num_objects - 1 << endl;
+  }
+  // Create output image coloring the objects and show area
+  Mat output = Mat::zeros(img.rows, img.cols, CV_8UC3);
+  RNG rng(0xFFFFFFFF);
+  for (auto i = 1; i < num_objects; i++) {
+    cout << "Object " << i << " with pos: " << centroids.at<Point2d>(i) << " with area "
+         << stats.at<int>(i, CC_STAT_AREA) << endl;
+    Mat mask = labels == i;
+    output.setTo(randomColor(rng), mask);
+    // draw text with area
+    stringstream ss;
+    ss << "area: " << stats.at<int>(i, CC_STAT_AREA);
 
-  // Detect edges with canny
-  Mat imgCanny;
-  Canny(imgMedian, imgCanny, 50, 150);
+    putText(output,
+            ss.str(),
+            centroids.at<Point2d>(i),
+            FONT_HERSHEY_SIMPLEX,
+            0.4,
+            Scalar(255, 255, 255));
+  }
+  imshow("Result", output);
+  miw->addImage("Result", output);
+}
 
-  // Dilate the edges
-  Mat kernel = getStructuringElement(MORPH_RECT, Size(2, 2));
-  dilate(imgCanny, imgCanny, kernel);
+void FindContoursBasic(const Mat& img) {
+  vector<vector<Point> > contours;
+  findContours(img, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+  Mat output = Mat::zeros(img.rows, img.cols, CV_8UC3);
+  // Check the number of objects detected
+  if (contours.empty()) {
+    cout << "No objects detected" << endl;
+    return;
+  } else {
+    cout << "Number of objects detected: " << contours.size() << endl;
+  }
+  RNG rng(0xFFFFFFFF);
+  for (auto i = 0; i < contours.size(); i++)
+    drawContours(output, contours, i, randomColor(rng));
+  imshow("Result", output);
+  miw->addImage("Result", output);
+}
 
-  // Scale edges values to 1 and invert values
-  imgCanny = imgCanny / 255;
-  imgCanny = 1 - imgCanny;
-
-  // Use float values to allow multiply between 0 and 1
-  Mat imgCannyf;
-  imgCanny.convertTo(imgCannyf, CV_32FC3);
-
-  // Blur the edgest to do smooth effect
-  blur(imgCannyf, imgCannyf, Size(5, 5));
-
-  /** COLOR **/
-  // Apply bilateral filter to homogenizes color
-  Mat imgBF;
-  bilateralFilter(img, imgBF, 9, 150.0, 150.0);
-
-  // truncate colors
-  Mat result = imgBF / 25;
-  result = result * 25;
-
-  /** MERGES COLOR + EDGES **/
-  // Create a 3 channles for edges
-  Mat imgCanny3c;
-  Mat cannyChannels[] = {imgCannyf, imgCannyf, imgCannyf};
-  merge(cannyChannels, 3, imgCanny3c);
-
-  // Convert color result to float
-  Mat resultf;
-  result.convertTo(resultf, CV_32FC3);
-
-  // Multiply color and edges matrices
-  multiply(resultf, imgCanny3c, resultf);
-
-  // convert to 8 bits color
-  resultf.convertTo(result, CV_8UC3);
-
-  // Show image
-  imshow("Result", result);
-
+/**
+ * Remove th light and return new image without light
+ * @param img Mat image to remove the light pattern
+ * @param pattern Mat image with light pattern
+ * @return a new image Mat without light
+ */
+Mat removeLight(Mat img, Mat pattern, int method) {
+  Mat aux;
+  // if method is normalization
+  if (method == 1) {
+    // Require change our image to 32 float for division
+    Mat img32, pattern32;
+    img.convertTo(img32, CV_32F);
+    pattern.convertTo(pattern32, CV_32F);
+    // Divide the imabe by the pattern
+    aux = 1 - (img32 / pattern32);
+    // Convert 8 bits format
+    aux.convertTo(aux, CV_8U, 255);
+  } else {
+    aux = pattern - img;
+  }
+  //equalizeHist( aux, aux );
+  return aux;
 }
 
 int main(int argc, const char **argv) {
   CommandLineParser parser(argc, argv, keys);
-  parser.about("Chapter 4. PhotoTool v1.0.0");
+  parser.about("Chapter 5. PhotoTool v1.0.0");
   //If requires help show
   if (parser.has("help")) {
     parser.printMessage();
     return 0;
   }
 
-  String imgFile = parser.get<String>(0);
+  auto img_file = parser.get<String>(0);
+  auto light_pattern_file = parser.get<String>(1);
+  auto method_light = parser.get<int>("lightMethod");
+  auto method_seg = parser.get<int>("segMethod");
 
   // Check if params are correctly parsed in his variables
   if (!parser.check()) {
@@ -229,20 +178,58 @@ int main(int argc, const char **argv) {
   }
 
   // Load image to process
-  img = imread(imgFile);
+  Mat img = imread(img_file, 0);
+  if (img.data == nullptr) {
+    cout << "Error loading image " << img_file << endl;
+    return 0;
+  }
 
-  // Create window
-  namedWindow("Input");
+  // Create the Multiple Image Window
+  miw = make_shared<MultipleImageWindow>("Main window", 3, 2, WINDOW_AUTOSIZE);
 
-  // Create UI buttons
-  createButton("Show histogram", showHistoCallback, NULL, QT_PUSH_BUTTON, 0);
-  createButton("Equalize histogram", equalizeCallback, NULL, QT_PUSH_BUTTON, 0);
-  createButton("Lomography effect", lomoCallback, NULL, QT_PUSH_BUTTON, 0);
-  createButton("Cartonize effect", cartoonCallback, NULL, QT_PUSH_BUTTON, 0);
+  // Remove noise
+  Mat img_noise, img_box_smooth;
+  medianBlur(img, img_noise, 3);
+  blur(img, img_box_smooth, Size(3, 3));
 
-  // Show image
-  imshow("Input", img);
+  // Load image to process
+  Mat light_pattern = imread(light_pattern_file, 0);
+  if (light_pattern.data == nullptr) {
+    // Calculate light pattern
+    light_pattern = calculateLightPattern(img_noise);
+  }
+  medianBlur(light_pattern, light_pattern, 3);
 
+  //Apply the light pattern
+  Mat img_no_light;
+  img_noise.copyTo(img_no_light);
+  if (method_light != 2) {
+    img_no_light = removeLight(img_noise, light_pattern, method_light);
+  }
+
+  // Binarize image for segment
+  Mat img_thr;
+  if (method_light != 2) {
+    threshold(img_no_light, img_thr, 30, 255, THRESH_BINARY);
+  } else {
+    threshold(img_no_light, img_thr, 140, 255, THRESH_BINARY_INV);
+  }
+
+  // Show images
+  miw->addImage("Input", img);
+  miw->addImage("Input without noise", img_noise);
+  miw->addImage("Light Pattern", light_pattern);
+  miw->addImage("No Light", img_no_light);
+  miw->addImage("Threshold", img_thr);
+
+  if (method_seg == 1)
+    ConnectedComponents(img_thr);
+  if (method_seg == 2)
+    ConnectedComponentsStats(img_thr);
+  if (method_seg == 3)
+    FindContoursBasic(img_thr);
+
+  miw->render();
   waitKey(0);
   return 0;
 
