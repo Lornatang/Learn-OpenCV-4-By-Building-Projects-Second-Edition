@@ -103,7 +103,6 @@ vector<vector<float> > ExtractFeatures(const Mat &img, vector<int> *left = nullp
   if (contours.empty()) {
     return output;
   }
-  RNG rng(0xFFFFFFFF);
   for (int i = 0; i < contours.size(); i++) {
 
     Mat mask = Mat::zeros(img.rows, img.cols, CV_8UC1);
@@ -150,7 +149,7 @@ Mat removeLight(const Mat &img, Mat pattern) {
   Mat img32, pattern32;
   img.convertTo(img32, CV_32F);
   pattern.convertTo(pattern32, CV_32F);
-  // Divide the imabe by the pattern
+  // Divide the image by the pattern
   aux = 1 - (img32 / pattern32);
   // Scale it to convert o 8bit format
   aux = aux * 255;
@@ -207,7 +206,7 @@ bool readFolderAndExtractFeatures(const string &folder, int label, int num_for_t
   Mat frame;
   int img_index = 0;
   while (images.read(frame)) {
-    //// Preprocess image
+    // Preprocess image
     Mat pre = preprocessImage(frame);
     // Extract features
     vector<vector<float> > features = ExtractFeatures(pre);
@@ -215,11 +214,11 @@ bool readFolderAndExtractFeatures(const string &folder, int label, int num_for_t
       if (img_index >= num_for_test) {
         trainingData.push_back(feature[0]);
         trainingData.push_back(feature[1]);
-        responsesData.push_back(label);
+        responsesData.push_back((float)label);
       } else {
         testData.push_back(feature[0]);
         testData.push_back(feature[1]);
-        testResponsesData.push_back((float) label);
+        testResponsesData.push_back((float)label);
       }
     }
     img_index++;
@@ -276,8 +275,8 @@ void trainAndTest() {
     cout << "Prediction Done" << endl;
     // Error calculation
     Mat errorMat = testPredict != testResponses;
-    float error = 100.0f * float(countNonZero(errorMat)) / testResponsesData.size();
-    cout << "Error: " << error << "\%" << endl;
+    float error = 100.0f * (float)(countNonZero(errorMat)) / testResponsesData.size();
+    cout << "Error: " << error << "%" << endl;
     // Plot training data with error label
     plotTrainData(trainingDataMat, responses, &error);
 
@@ -328,9 +327,9 @@ int main(int argc, const char **argv) {
 
   trainAndTest();
 
-  //// Preprocess image
+  // Preprocess image
   Mat pre = preprocessImage(img);
-  ////End preprocess
+  // End preprocess
 
   // Extract features
   vector<int> pos_top, pos_left;
