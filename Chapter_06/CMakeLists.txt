@@ -11,5 +11,5 @@ MESSAGE("OpenCV version : ${OpenCV_VERSION}")
 include_directories(${OpenCV_INCLUDE_DIRS})
 link_directories(${OpenCV_LIB_DIR})
 
-ADD_EXECUTABLE(${PROJECT_NAME} main.cpp utils/multiple_image_window.cc)
+ADD_EXECUTABLE(${PROJECT_NAME} main.cc utils/multiple_image_window.cc)
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OpenCV_LIBS})
