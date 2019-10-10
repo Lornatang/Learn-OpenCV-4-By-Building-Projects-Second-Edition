@@ -1,6 +1,6 @@
 #include "multiple_image_window.h"
 
-MultipleImageWindow::MultipleImageWindow(const string& window_title, int cols, int rows, int flags) {
+MultipleImageWindow::MultipleImageWindow(const string &window_title, int cols, int rows, int flags) {
   this->window_title = window_title;
   this->cols = cols;
   this->rows = rows;
@@ -12,7 +12,7 @@ MultipleImageWindow::MultipleImageWindow(const string& window_title, int cols, i
   imshow(this->window_title, this->canvas);
 }
 
-int MultipleImageWindow::addImage(const string& title, const Mat& image, bool render) {
+int MultipleImageWindow::addImage(const string &title, const Mat &image, bool render) {
   // Check if the title exists in the vector titles
   int index = -1;
   for (int i = 0; i < int(this->titles.size()); i++) {
@@ -47,7 +47,7 @@ void MultipleImageWindow::render() {
   int max_images = (this->images.size() > cols * rows) ? cols * rows : int(this->images.size());
   int i = 0;
   auto titles_it = this->titles.begin();
-  for (const auto& img : this->images) {
+  for (const auto &img : this->images) {
     string title = *titles_it;
     int cell_x = (cell_width) * ((i) % cols); // A
     int cell_y = int(float(cell_height) * floor(float(i) / (float) cols));
