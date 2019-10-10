@@ -214,11 +214,11 @@ bool readFolderAndExtractFeatures(const string &folder, int label, int num_for_t
       if (img_index >= num_for_test) {
         trainingData.push_back(feature[0]);
         trainingData.push_back(feature[1]);
-        responsesData.push_back((float)label);
+        responsesData.push_back((float) label);
       } else {
         testData.push_back(feature[0]);
         testData.push_back(feature[1]);
-        testResponsesData.push_back((float)label);
+        testResponsesData.push_back((float) label);
       }
     }
     img_index++;
@@ -275,7 +275,7 @@ void trainAndTest() {
     cout << "Prediction Done" << endl;
     // Error calculation
     Mat errorMat = testPredict != testResponses;
-    float error = 100.0f * (float)(countNonZero(errorMat)) / testResponsesData.size();
+    float error = 100.0f * (float) (countNonZero(errorMat)) / testResponsesData.size();
     cout << "Error: " << error << "%" << endl;
     // Plot training data with error label
     plotTrainData(trainingDataMat, responses, &error);
