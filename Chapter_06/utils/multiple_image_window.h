@@ -33,7 +33,7 @@ class MultipleImageWindow
          * @param int rows number of rows
          * @param int flags see highgui window documentation
          */
-        MultipleImageWindow(string window_title, int cols, int rows, int flags);
+        MultipleImageWindow(const string& window_title, int cols, int rows, int flags);
 
         /**
          * Add new image to stack of window
@@ -41,7 +41,7 @@ class MultipleImageWindow
          * @param string title caption of image to show
          * @return int position of image in stack
          */
-        int addImage(string title, Mat image, bool render= false);
+        int addImage(const string& title, const Mat& image, bool render= false);
 
         /**
          * Remove a image from position n
