@@ -11,17 +11,17 @@ MESSAGE("OpenCV version : ${OpenCV_VERSION}")
 include_directories(${OpenCV_INCLUDE_DIRS})
 link_directories(${OpenCV_LIB_DIR})
 
-ADD_EXECUTABLE( backgroundSubtraction backgroundSubtraction.cpp )
+ADD_EXECUTABLE( backgroundSubtraction background_subtraction.cc)
 TARGET_LINK_LIBRARIES( backgroundSubtraction ${OpenCV_LIBS} )
 
-ADD_EXECUTABLE( dilation dilation.cpp )
+ADD_EXECUTABLE( dilation dilation.cc)
 TARGET_LINK_LIBRARIES( dilation ${OpenCV_LIBS} )
 
-ADD_EXECUTABLE( erosion erosion.cpp )
+ADD_EXECUTABLE( erosion erosion.cc)
 TARGET_LINK_LIBRARIES( erosion ${OpenCV_LIBS} )
 
-ADD_EXECUTABLE( frameDifferencing frameDifferencing.cpp )
+ADD_EXECUTABLE( frameDifferencing frameDifferencing.cc)
 TARGET_LINK_LIBRARIES( frameDifferencing ${OpenCV_LIBS} )
 
-ADD_EXECUTABLE( morphologicalOperations morphologicalOperations.cpp )
+ADD_EXECUTABLE( morphologicalOperations morphological_operations.cc)
 TARGET_LINK_LIBRARIES( morphologicalOperations ${OpenCV_LIBS} )
