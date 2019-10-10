@@ -28,7 +28,7 @@ using namespace std;
 
 using namespace cv;
 
-shared_ptr<MultipleImageWindow> miw;
+shared_ptr<multiple_image_window> miw;
 
 // OpenCV command line parser functions
 // Keys accecpted by command line parser
@@ -185,7 +185,7 @@ int main(int argc, const char **argv) {
   }
 
   // Create the Multiple Image Window
-  miw = make_shared<MultipleImageWindow>("Main window", 3, 2, WINDOW_AUTOSIZE);
+  miw = make_shared<multiple_image_window>("Main window", 3, 2, WINDOW_AUTOSIZE);
 
   // Remove noise
   Mat img_noise, img_box_smooth;

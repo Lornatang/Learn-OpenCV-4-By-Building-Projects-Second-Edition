@@ -28,7 +28,7 @@ using namespace std;
 
 using namespace cv;
 
-class MultipleImageWindow {
+class multiple_image_window {
 public:
   /**
    * Constructor
@@ -39,7 +39,7 @@ public:
    * @param int rows number of rows
    * @param int flags see highgui window documentation
    */
-  MultipleImageWindow(const string& window_title, const int& cols, const int& rows, const int& flags);
+  multiple_image_window(const string& window_title, const int& cols, const int& rows, const int& flags);
 
   /**
    * Add new image to stack of window

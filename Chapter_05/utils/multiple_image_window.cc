@@ -16,7 +16,7 @@
 
 #include "multiple_image_window.h"
 
-MultipleImageWindow::MultipleImageWindow(const string& window_title, const int& cols, const int& rows, const int& flags) {
+multiple_image_window::multiple_image_window(const string& window_title, const int& cols, const int& rows, const int& flags) {
   this->window_title = window_title;
   this->cols = cols;
   this->rows = rows;
@@ -27,7 +27,7 @@ MultipleImageWindow::MultipleImageWindow(const string& window_title, const int& 
   imshow(this->window_title, this->canvas);
 }
 
-int MultipleImageWindow::add_image(const string& title, const Mat& image, const bool& render) {
+int multiple_image_window::add_image(const string& title, const Mat& image, const bool& render) {
   this->titles.push_back(title);
   this->images.push_back(image);
   if (render)
@@ -40,7 +40,7 @@ int MultipleImageWindow::add_image(const string& title, const Mat& image, const 
 //  this->images.erase(this->images.begin() + pos);
 //}
 
-void MultipleImageWindow::render() {
+void multiple_image_window::render() {
   // Clean our canvas
   this->canvas.setTo(Scalar(20, 20, 20));
   // width and height of cell. add 10 px of padding between images
