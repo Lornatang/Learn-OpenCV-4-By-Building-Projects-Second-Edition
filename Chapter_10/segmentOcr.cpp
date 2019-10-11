@@ -38,7 +38,7 @@ Mat binarize(Mat input)
 	return white < black ? binaryImage : ~binaryImage;
 }
 
-vector<RotatedRect> findTextAreas(Mat input) {
+vector<RotatedRect> findTextAreas() {
 	//Dilate the image
 	auto kernel = getStructuringElement(MORPH_CROSS, Size(3,3));
 	Mat dilated;
@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
 {
 	//Loads the ticket image and binarize it
 	Mat ticket = binarize(imread("ticketHigh.png"));	
-	auto regions = findTextAreas(ticket);
+	auto regions = findTextAreas();
 
 	std::ofstream file; 
 	file.open("ticket.txt", std::ios::out | std::ios::binary);
