@@ -1,36 +1,48 @@
-cmake_minimum_required (VERSION 3.0) 
+cmake_minimum_required(VERSION 3.0)
 
 PROJECT(Segment_text_ch10)
 
-set (CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
-IF(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-    conan_basic_setup()
-ENDIF()
+# Requires OpenCV
+FIND_PACKAGE(OpenCV 4.0.0 REQUIRED)
+MESSAGE("OpenCV version : ${OpenCV_VERSION}")
 
-# Requires OpenCV v4.0 or later
-FIND_PACKAGE( OpenCV 4 REQUIRED )
+include_directories(${OpenCV_INCLUDE_DIRS})
+link_directories(${OpenCV_LIB_DIR})
 
-find_package( PkgConfig REQUIRED)
+# load system include
+include_directories(/usr/local/include)
+# load opencv include
+#include_directories(/usr/local/include/opencv4)
+# load leptonica include
+include_directories(/usr/local/include/leptonica)
+# load tesseract include
+include_directories(/usr/local/include/tesseract)
 
-pkg_search_module( TESSERACT REQUIRED tesseract )
+# load system library
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+  link_directories(/usr/local/lib)
+  link_directories(/usr/local/lib64)
+else ()
+  link_directories(/usr/local/lib)
+endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
-pkg_search_module( LEPTONICA REQUIRED lept )
+ADD_EXECUTABLE(segment segment.cpp)
+TARGET_LINK_LIBRARIES(segment
+    ${OPENCV_LIBS}
+    leptonica
+    tesseract)
 
-include_directories( ${TESSERACT_INCLUDE_DIRS} )
+ADD_EXECUTABLE(segmentOcr segmentOcr.cpp)
+TARGET_LINK_LIBRARIES(segmentOcr
+    ${OPENCV_LIBS}
+    leptonica
+    tesseract)
 
-include_directories( ${LEPTONICA_INCLUDE_DIRS} )
+ADD_EXECUTABLE(segmentOcrHigh segmentOcrHigh.cpp)
+TARGET_LINK_LIBRARIES(segmentOcrHigh
+    ${OPENCV_LIBS}
+    leptonica
+    tesseract)
 
-link_directories( ${TESSERACT_LIBRARY_DIRS} )
-
-link_directories( ${LEPTONICA_LIBRARY_DIRS} )
-
-ADD_EXECUTABLE( segment segment.cpp )
-TARGET_LINK_LIBRARIES( segment  ${CONAN_LIBS} ${OPENCV_LIBS})
-
-ADD_EXECUTABLE( segmentOcr segmentOcr.cpp )
-TARGET_LINK_LIBRARIES( segmentOcr  ${CONAN_LIBS} ${OPENCV_LIBS} ${TESSERACT_LIBRARIES} ${LEPTONICA_LIBRARIES})
-
-ADD_EXECUTABLE( segmentOcrHigh segmentOcrHigh.cpp )
-TARGET_LINK_LIBRARIES( segmentOcrHigh  ${CONAN_LIBS} ${OPENCV_LIBS} ${TESSERACT_LIBRARIES} ${LEPTONICA_LIBRARIES})
