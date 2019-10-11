@@ -36,7 +36,7 @@ Mat binarize(Mat input)
 	return white < black ? binaryImage : ~binaryImage;
 }
 
-vector<RotatedRect> findTextAreas() {
+vector<RotatedRect> findTextAreas(Mat input) {
 	//Dilate the image
 	auto kernel = getStructuringElement(MORPH_CROSS, Size(3,3));
 	Mat dilated;
@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
 {
 	//Loads the ticket image and binarize it
 	auto ticket = binarize(imread("ticket.png"));
-	auto regions = findTextAreas();
+	auto regions = findTextAreas(ticket);
 	
 	//For each region
 	for (const auto& region : regions) {

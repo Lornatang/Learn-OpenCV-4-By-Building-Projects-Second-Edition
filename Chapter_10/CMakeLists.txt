@@ -14,7 +14,7 @@ link_directories(${OpenCV_LIB_DIR})
 # load system include
 include_directories(/usr/local/include)
 # load opencv include
-#include_directories(/usr/local/include/opencv4)
+include_directories(/usr/local/include/opencv4)
 # load leptonica include
 include_directories(/usr/local/include/leptonica)
 # load tesseract include
@@ -28,19 +28,19 @@ else ()
   link_directories(/usr/local/lib)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
-ADD_EXECUTABLE(segment segment.cpp)
+ADD_EXECUTABLE(segment segment.cc)
 TARGET_LINK_LIBRARIES(segment
     ${OPENCV_LIBS}
     leptonica
     tesseract)
 
-ADD_EXECUTABLE(segmentOcr segmentOcr.cpp)
+ADD_EXECUTABLE(segmentOcr segment_ocr.cc)
 TARGET_LINK_LIBRARIES(segmentOcr
     ${OPENCV_LIBS}
     leptonica
     tesseract)
 
-ADD_EXECUTABLE(segmentOcrHigh segmentOcrHigh.cpp)
+ADD_EXECUTABLE(segmentOcrHigh segment_ocr_high.cc)
 TARGET_LINK_LIBRARIES(segmentOcrHigh
     ${OPENCV_LIBS}
     leptonica
